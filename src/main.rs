@@ -9,11 +9,12 @@ struct Session {
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[derive(Debug)]
 struct AuthenticationResponse {
     data: AuthData,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct AuthData {
     access_token: String,
 }
@@ -36,18 +37,24 @@ async fn main() -> Result<(), GooseError> {
 }
 
 async fn login(user: &mut GooseUser) -> TransactionResult {
-    let params = [("username", ""), ("password", "")];
+    let params = [
+        ("username", "mf_efishery_v5LWQUoS"),
+        ("password", "1onRN4Cj3uy#"),
+    ];
     // Logging the request to login
     info!("Sending login request with username: {}", params[0].1);
 
     // Send login request
-    let response = user.post_form("/login", &params).await?;
+    let response = user.post_form("", &params).await?;
 
     // Handle and log response
     match response.response {
         Ok(r) => match r.json::<AuthenticationResponse>().await {
             Ok(auth_response) => {
                 // Log the successful response
+
+                info!("Login successful: JWT received {:?}", auth_response.data);
+
                 info!(
                     "Login successful: JWT received {}",
                     auth_response.data.access_token
